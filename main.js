@@ -43,6 +43,8 @@ function handleNoInteraction() {
 
 		if (noButtonCount === 14) {
 			yesBtn.style.pointerEvents = "auto";
+			// Hide or remove the "No" button after the 14th interaction
+			noBtn.style.display = "none"; // Or you can use noBtn.remove() to completely remove it
 		}
 
 		const newX = Math.floor(Math.random() * questionContainer.offsetWidth);
