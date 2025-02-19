@@ -7,7 +7,7 @@ const noBtn = document.querySelector(".js-no-btn");
 const questionText = document.querySelector(".question");
 const heartContainer = document.querySelector(".heart-container");
 const card = document.getElementById("card");
-const boxImage = document.querySelector(".box-image img"); // Added to target the image element
+const boxImage = document.querySelector(".box-image img");
 
 const messages = [
 	"Try again po 😁",
@@ -27,24 +27,39 @@ const messages = [
 ];
 
 let noButtonCount = 0;
+let musicPlayed = false;
 yesBtn.style.opacity = "0";
 yesBtn.style.pointerEvents = "none";
 
-noBtn.addEventListener("mouseover", handleNoInteraction);
-noBtn.addEventListener("click", handleNoInteraction);
+const bgMusic = new Audio("baby you.mp3");
+bgMusic.loop = true;
 
-function handleNoInteraction() {
+function playMusic() {
+	if (!musicPlayed) {
+		bgMusic.play().catch(() => {
+			document.addEventListener("click", () => {
+				bgMusic.play();
+			}, {
+				once: true
+			});
+		});
+		musicPlayed = true;
+	}
+}
+
+function handleNoClick() {
+	if (!musicPlayed) playMusic();
+
 	if (noButtonCount < 14) {
-		questionText.textContent = messages[noButtonCount]; // Update text
-		boxImage.src = `images/${noButtonCount + 1}.gif`; // Update the image source based on the count
+		questionText.textContent = messages[noButtonCount];
+		boxImage.src = `images/${noButtonCount + 1}.gif`;
 		noButtonCount++;
 
 		yesBtn.style.opacity = noButtonCount / 14;
 
 		if (noButtonCount === 14) {
 			yesBtn.style.pointerEvents = "auto";
-			// Hide or remove the "No" button after the 14th interaction
-			noBtn.style.display = "none"; // Or you can use noBtn.remove() to completely remove it
+			noBtn.style.display = "none";
 		}
 
 		const newX = Math.floor(Math.random() * questionContainer.offsetWidth);
@@ -54,6 +69,8 @@ function handleNoInteraction() {
 		noBtn.style.top = `${newY}px`;
 	}
 }
+
+noBtn.addEventListener("click", handleNoClick);
 
 yesBtn.addEventListener("click", () => {
 	questionContainer.style.display = "none";
@@ -72,23 +89,15 @@ function createHeart() {
 	const heart = document.createElement("div");
 	heart.classList.add("heart");
 
-	// Random position across the full screen
 	const randomX = Math.random() * window.innerWidth;
 	const randomY = Math.random() * window.innerHeight;
-
-	// Random movement (small to large random range)
 	const moveX = (Math.random() - 0.5) * 300;
 	const moveY = (Math.random() - 0.5) * 300;
 	const moveXEnd = moveX * 2;
 	const moveYEnd = moveY * 2;
+	const randomSize = Math.random() * 30 + 20;
+	const randomDuration = Math.random() * 4 + 2;
 
-	// Random heart size
-	const randomSize = Math.random() * 30 + 20; // Between 20px and 50px
-
-	// Random duration (makes each heart move at different speeds)
-	const randomDuration = Math.random() * 4 + 2; // 2s to 6s
-
-	// Apply styles
 	heart.style.left = `${randomX}px`;
 	heart.style.top = `${randomY}px`;
 	heart.style.width = `${randomSize}px`;
@@ -101,24 +110,20 @@ function createHeart() {
 
 	heartContainer.appendChild(heart);
 
-	// Remove after animation
 	setTimeout(() => {
 		heart.remove();
 	}, randomDuration * 1000);
 }
 
-// Show hearts when card appears
 function startHearts() {
 	heartContainer.style.display = "block";
 	setInterval(createHeart, 300);
 }
 
-// Hide hearts when card disappears
 function stopHearts() {
 	heartContainer.style.display = "none";
 }
 
-// Observe card visibility
 const observer = new MutationObserver(() => {
 	if (window.getComputedStyle(card).display !== "none") {
 		startHearts();
